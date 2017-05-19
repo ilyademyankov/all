@@ -24,12 +24,11 @@ SetQuery("INSERT INTO products(...) values(?s1?,?s2?,?i3?,?d4?) ",array('text1',
 
 */
 
-
 class SafeQuery{  
 	public $sqlConnect=Null;
   	public $typeResult="row";
-  	private $sqlResult=Null;
-	private $stringQuery;	
+  	protected $sqlResult;
+	protected $stringQuery;	
   
     public function MakeQuery(){
     	$this->sqlResult=$this->sqlConnect->query($this->stringQuery);
@@ -45,18 +44,16 @@ class SafeQuery{
             $stringQuery=str_replace($match,$value,$stringQuery);
             $i++;  
           }
-           $this->stringQuery=$stringQuery;   	 
+            $this->stringQuery=$stringQuery;   	 
     }
   
-	public function NumRows(){
+	public function GetNumRows(){
     	return $this->sqlResult->num_rows;
     }
   
- 	 public function LastInsertID(){
+ 	 public function GetLastInsertID(){
     	return $this->sqlResult->insert_id;
    	 }
-  
-
   	
   	private function InjectWarning($value){
       	$warningArray=array('INSERT','UPDATE','DROP','DELETE','SELECT'); 
@@ -64,8 +61,7 @@ class SafeQuery{
 			if(preg_match("/".$warningValue."/i",$value)){print "<p>Подозрительное значение $warningValue в переменной $value</p>";}
         }
     }
-  		
-  
+  		  
 	private function CheckValue($type,$value){
       	    $this->InjectWarning($value); 
 		switch($type){
@@ -87,4 +83,25 @@ class SafeQuery{
  
 
 }
-?>
+
+class SafeQueryData extends SafeQuery{
+  
+     public function MakeQueryArray01(){
+       	$this->sqlResult=$this->sqlConnect->query($this->stringQuery);
+      	while($row=$this->sqlResult->fetch_row()){
+         $array[0][]=$row[0];
+         $array[1][]=$row[1];
+        }
+       return $array;
+    }
+  
+     public function MakeQueryArrayAsssoc($name,$value){
+       	$this->sqlResult=$this->sqlConnect->query($this->stringQuery);
+      	while($row=$this->sqlResult->fetch_assoc()){
+         $array[0][]=$row[$value];
+         $array[1][]=$row[$name];
+        }
+       return $array;
+     }
+}
+
