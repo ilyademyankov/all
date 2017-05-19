@@ -77,8 +77,7 @@ class SafeQuery{
             break;
             case 's' :
             	$value=htmlspecialchars("$value", ENT_QUOTES);
-            	$return=str_replace("'",'“',$value);
-            	$return="'".$return."'";
+            	$return="'".$value."'";
             break;
         }
         	 return $return;
