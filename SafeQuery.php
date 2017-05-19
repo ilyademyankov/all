@@ -20,17 +20,24 @@ functions:
   
 
 Using example
-Query("INSERT INTO products(...) values(?s1?,?s2?,?i3?,?d4?) ",array('text1','text2',5,'3,45'));
+SetQuery("INSERT INTO products(...) values(?s1?,?s2?,?i3?,?d4?) ",array('text1','text2',5,'3,45'));
 
 */
+
 
 class SafeQuery{  
 	public $sqlConnect=Null;
   	public $typeResult="row";
   	private $sqlResult=Null;
-  	
-	
-  	public function Query($stringQuery,$arrayVals){     
+	private $stringQuery;	
+  
+    public function MakeQuery(){
+    	$this->sqlResult=$this->sqlConnect->query($this->stringQuery);
+      	return $this->sqlResult->fetch_all();
+      
+    }
+  
+  	public function SetQuery($stringQuery,$arrayVals){     
           preg_match_all("/\?.[0-9]*\?/", $stringQuery, $matches);
           $i=0;
           foreach($matches[0] as $match){
@@ -38,9 +45,7 @@ class SafeQuery{
             $stringQuery=str_replace($match,$value,$stringQuery);
             $i++;  
           }
-      	  $result=$this->MakeQuery($stringQuery);
-          return $result; 
-      	 
+           $this->stringQuery=$stringQuery;   	 
     }
   
 	public function NumRows(){
@@ -51,11 +56,7 @@ class SafeQuery{
     	return $this->sqlResult->insert_id;
    	 }
   
-  	private function MakeQuery($stringQuery){
-    	$this->sqlResult=$this->sqlConnect->query($stringQuery);
-      	return $this->sqlResult->fetch_all();
-      
-    }
+
   	
   	private function InjectWarning($value){
       	$warningArray=array('INSERT','UPDATE','DROP','DELETE','SELECT'); 
@@ -76,8 +77,8 @@ class SafeQuery{
             	$return=preg_replace('/[^0-9.]/', '', $value);
             break;
             case 's' :
-            	$value=htmlspecialchars("$value", ENT_QUOTES);
-            	$return="'".$value."'";
+            	$return=htmlspecialchars("$value", ENT_QUOTES);
+            	$return="'".$return."'";
             break;
         }
         	 return $return;
@@ -86,6 +87,4 @@ class SafeQuery{
  
 
 }
-
-
 ?>
